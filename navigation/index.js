@@ -10,6 +10,34 @@ export default [
     ],
   },
   {
+    header: "Forensik",
+    description: "Forensik",
+    child: [
+      {
+        title: "Permohonan Online",
+        path: "/permohonan-online",
+        icon: "ic:outline-dashboard",
+        child: [
+          {
+            title: "Senarai",
+            path: "/permohonan-online/senarai",
+          },
+        ],
+      },
+      {
+        title: "Kemaskini Daftar",
+        path: "/kemaskini-daftar",
+        icon: "ic:outline-dashboard",
+        child: [
+          {
+            title: "Senarai",
+            path: "/kemaskini-daftar/senarai",
+          },
+        ],
+      },
+    ],
+  },
+  {
     header: "Apps & Pages",
     description: "Wonderful apps",
     child: [
