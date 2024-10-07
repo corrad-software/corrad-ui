@@ -125,6 +125,10 @@ export default [
             path: "/ui/component/buttons",
           },
           {
+            title: "Card",
+            path: "/ui/component/card",
+          },
+          {
             title: "Calendar",
             path: "/ui/component/calendar",
           },
