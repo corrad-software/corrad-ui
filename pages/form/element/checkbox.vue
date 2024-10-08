@@ -3,10 +3,35 @@ definePageMeta({
   title: "Input Checkbox",
 });
 
-const showCode1 = ref(false);
-const showCode2 = ref(false);
-const showCode3 = ref(false);
-const showCode4 = ref(false);
+const showCode = reactive({});
+const tooltips = reactive({});
+
+const toggleCode = (section) => {
+  showCode[section] = !showCode[section];
+};
+
+const copyCode = (codeId) => {
+  const codeElement = document.getElementById(codeId);
+  if (codeElement) {
+    navigator.clipboard
+      .writeText(codeElement.textContent)
+      .then(() => {
+        console.log("Code copied to clipboard");
+        showTooltip(codeId, "Code copied!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy code: ", err);
+        showTooltip(codeId, "Failed to copy code");
+      });
+  }
+};
+
+const showTooltip = (codeId, message) => {
+  tooltips[codeId] = message;
+  setTimeout(() => {
+    tooltips[codeId] = null;
+  }, 2000);
+};
 
 const options = ["Audi", "Mazda", "Proton", "Perodua", "BMW", "Mercedes"];
 const options2 = [
@@ -38,35 +63,47 @@ const options2 = [
           input-class="icon-check"
         />
 
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="showCode1 ? (showCode1 = false) : (showCode1 = true)"
+            @click="toggleCode('single')"
           >
-            Show Code
+            {{ showCode.single ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div class="z-0" v-show="showCode1" v-highlight>
+            <div v-show="showCode.single" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeSingle')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeSingle']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeSingle"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt;
-                &lt;FormKit
-                  type="checkbox"
-                  label="Terms and Conditions"
-                  help="Do you agree to our terms of service?"
-                  name="terms"
-                  validation="accepted"
-                  validation-visibility="dirty"
-                  input-class="icon-check"
-                /&gt;
-              &lt;/template&gt;
+                <pre id="codeSingle" class="language-html shadow-none">
+                  <code>
+                    &lt;template&gt;
+                      &lt;FormKit
+                        type="checkbox"
+                        label="Terms and Conditions"
+                        help="Do you agree to our terms of service?"
+                        name="terms"
+                        validation="accepted"
+                        validation-visibility="dirty"
+                        input-class="icon-check"
+                      /&gt;
+                    &lt;/template&gt;
 
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
+                    &lt;script setup&gt;&lt;/script&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -83,34 +120,46 @@ const options2 = [
           help="Select your favourite cars?"
           :options="options"
         />
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="showCode2 ? (showCode2 = false) : (showCode2 = true)"
+            @click="toggleCode('multiple')"
           >
-            Show Code
+            {{ showCode.multiple ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div class="z-0" v-show="showCode2" v-highlight>
+            <div v-show="showCode.multiple" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeMultiple')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeMultiple']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeMultiple"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt;
-                &lt;FormKit
-                  type="checkbox"
-                  label="Cars"
-                  help="Select your favourite cars?"
-                  :options="options"
-                /&gt;
-              &lt;/template&gt;
+                <pre id="codeMultiple" class="language-html shadow-none">
+                  <code>
+                    &lt;template&gt;
+                      &lt;FormKit
+                        type="checkbox"
+                        label="Cars"
+                        help="Select your favourite cars?"
+                        :options="options"
+                      /&gt;
+                    &lt;/template&gt;
 
-              &lt;script setup&gt;
-                const options = ["Audi", "Mazda", "Proton", "Perodua", "BMW", "Mercedes"];
-              &lt;/script&gt;
-            </code>
-          </pre>
+                    &lt;script setup&gt;
+                      const options = ["Audi", "Mazda", "Proton", "Perodua", "BMW", "Mercedes"];
+                    &lt;/script&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -127,50 +176,63 @@ const options2 = [
           help="What is your favourite movie?"
           :options="options2"
         />
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="showCode3 ? (showCode3 = false) : (showCode3 = true)"
+            @click="toggleCode('disabled')"
           >
-            Show Code
+            {{ showCode.disabled ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div class="z-0" v-show="showCode3" v-highlight>
+            <div v-show="showCode.disabled" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeDisabled')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeDisabled']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeDisabled"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt;
-                &lt;FormKit
-                  type="checkbox"
-                  label="Movies"
-                  help="What is your favourite movie?"
-                  :options="options"
-                /&gt;
-              &lt;/template&gt;
+                <pre id="codeDisabled" class="language-html shadow-none">
+                  <code>
+                    &lt;template&gt;
+                      &lt;FormKit
+                        type="checkbox"
+                        label="Movies"
+                        help="What is your favourite movie?"
+                        :options="options"
+                      /&gt;
+                    &lt;/template&gt;
 
-              &lt;script setup&gt;
-                const options = [
-                  { label: "Shawshank redemption", value: "shawshank" },
-                  { label: "The Godfather", value: "godfather" },
-                  {
-                    label: "Casablanca (too old)",
-                    value: "casablanca",
-                    attrs: { disabled: true },
-                  },
-                  { label: "The Lord of the Rings", value: "lotr" },
-                  { label: "Saving Private Ryan", value: "saving-ryan" },
-                ];
-              &lt;/script&gt;
-            </code>
-          </pre>
+                    &lt;script setup&gt;
+                      const options = [
+                        { label: "Shawshank redemption", value: "shawshank" },
+                        { label: "The Godfather", value: "godfather" },
+                        {
+                          label: "Casablanca (too old)",
+                          value: "casablanca",
+                          attrs: { disabled: true },
+                        },
+                        { label: "The Lord of the Rings", value: "lotr" },
+                        { label: "Saving Private Ryan", value: "saving-ryan" },
+                      ];
+                    &lt;/script&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
         </ClientOnly>
       </template>
     </rs-card>
+
     <rs-card>
       <template #header> Validation </template>
       <template #body>
@@ -182,36 +244,48 @@ const options2 = [
           validation="required|min:3"
           validation-visibility="dirty"
         />
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="showCode4 ? (showCode4 = false) : (showCode4 = true)"
+            @click="toggleCode('validation')"
           >
-            Show Code
+            {{ showCode.validation ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div class="z-0" v-show="showCode4" v-highlight>
+            <div v-show="showCode.validation" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeValidation')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeValidation']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeValidation"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt;
-                &lt;FormKit
-                  type="checkbox"
-                  label="Cars"
-                  help="Please select at least 3 cars?"
-                  :options="options"
-                  validation="required|min:3"
-                  validation-visibility="dirty"
-                /&gt;
-              &lt;/template&gt;
+                <pre id="codeValidation" class="language-html shadow-none">
+                  <code>
+                    &lt;template&gt;
+                      &lt;FormKit
+                        type="checkbox"
+                        label="Cars"
+                        help="Please select at least 3 cars?"
+                        :options="options"
+                        validation="required|min:3"
+                        validation-visibility="dirty"
+                      /&gt;
+                    &lt;/template&gt;
 
-              &lt;script setup&gt;
-                const options = ["Audi", "Mazda", "Proton", "Perodua", "BMW", "Mercedes"];
-              &lt;/script&gt;
-            </code>
-          </pre>
+                    &lt;script setup&gt;
+                      const options = ["Audi", "Mazda", "Proton", "Perodua", "BMW", "Mercedes"];
+                    &lt;/script&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -220,3 +294,15 @@ const options2 = [
     </rs-card>
   </div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

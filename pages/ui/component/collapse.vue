@@ -4,9 +4,35 @@ definePageMeta({
 });
 
 const type = ref("default");
-const showCode1 = ref(false);
-const showCode2 = ref(false);
-const showCode3 = ref(false);
+const showCode = reactive({});
+const tooltips = reactive({});
+
+const toggleCode = (section) => {
+  showCode[section] = !showCode[section];
+};
+
+const copyCode = (codeId) => {
+  const codeElement = document.getElementById(codeId);
+  if (codeElement) {
+    navigator.clipboard
+      .writeText(codeElement.textContent)
+      .then(() => {
+        console.log("Code copied to clipboard");
+        showTooltip(codeId, "Code copied!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy code: ", err);
+        showTooltip(codeId, "Failed to copy code");
+      });
+  }
+};
+
+const showTooltip = (codeId, message) => {
+  tooltips[codeId] = message;
+  setTimeout(() => {
+    tooltips[codeId] = null;
+  }, 2000);
+};
 </script>
 
 <template>
@@ -38,29 +64,38 @@ const showCode3 = ref(false);
             <p>Collapse Item 1 content</p>
           </rs-collapse-item>
         </rs-collapse>
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="showCode1 ? (showCode1 = false) : (showCode1 = true)"
+            @click="toggleCode('default')"
           >
-            Show Code
+            {{ showCode.default ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div v-show="showCode1" v-highlight>
+            <div v-show="showCode.default" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeDefault')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeDefault']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeDefault"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-collapse&gt;
-                  &lt;rs-collapse-item title="Collapse Item 1"&gt;Collapse Item 1 content&lt;/rs-collapse-item&gt;
-                  &lt;rs-collapse-item title="Collapse Item 2"&gt;Collapse Item 2 content&lt;/rs-collapse-item&gt;
-                &lt;/rs-collapse&gt;
-
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
+                <pre id="codeDefault" class="language-html shadow-none">
+                  <code>
+                    &lt;rs-collapse&gt;
+                      &lt;rs-collapse-item title="Collapse Item 1"&gt;Collapse Item 1 content&lt;/rs-collapse-item&gt;
+                      &lt;rs-collapse-item title="Collapse Item 2"&gt;Collapse Item 2 content&lt;/rs-collapse-item&gt;
+                    &lt;/rs-collapse&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -95,29 +130,38 @@ const showCode3 = ref(false);
             <p>Collapse Item 1 content</p>
           </rs-collapse-item>
         </rs-collapse>
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="showCode2 ? (showCode2 = false) : (showCode2 = true)"
+            @click="toggleCode('accordion')"
           >
-            Show Code
+            {{ showCode.accordion ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div v-show="showCode2" v-highlight>
+            <div v-show="showCode.accordion" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeAccordion')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeAccordion']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeAccordion"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-collapse accordion&gt;
-                  &lt;rs-collapse-item title="Collapse Item 1"&gt;Collapse Item 1 content&lt;/rs-collapse-item&gt;
-                  &lt;rs-collapse-item title="Collapse Item 2"&gt;Collapse Item 2 content&lt;/rs-collapse-item&gt;
-                &lt;/rs-collapse&gt;
-
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
+                <pre id="codeAccordion" class="language-html shadow-none">
+                  <code>
+                    &lt;rs-collapse accordion&gt;
+                      &lt;rs-collapse-item title="Accordion Item 1"&gt;Accordion Item 1 content&lt;/rs-collapse-item&gt;
+                      &lt;rs-collapse-item title="Accordion Item 2"&gt;Accordion Item 2 content&lt;/rs-collapse-item&gt;
+                    &lt;/rs-collapse&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -163,46 +207,54 @@ const showCode3 = ref(false);
             <p>Collapse Item 2 content</p>
           </rs-collapse-item>
           <rs-collapse-item title="Collapse Item 3">
-            <p>Collapse Item 13 content</p>
+            <p>Collapse Item 3 content</p>
           </rs-collapse-item>
         </rs-collapse>
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="showCode3 ? (showCode3 = false) : (showCode3 = true)"
+            @click="toggleCode('type')"
           >
-            Show Code
+            {{ showCode.type ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div v-show="showCode3" v-highlight>
+            <div v-show="showCode.type" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeType')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeType']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeType"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;!-- Default Styling('default') --&gt;
-                &lt;rs-collapse&gt;
-                  &lt;rs-collapse-item title="Collapse Item 1"&gt;Collapse Item 1 content&lt;/rs-collapse-item&gt;
-                  &lt;rs-collapse-item title="Collapse Item 2"&gt;Collapse Item 2 content&lt;/rs-collapse-item&gt;
-                &lt;/rs-collapse&gt;
+                <pre id="codeType" class="language-html shadow-none">
+                  <code>
+                    &lt;!-- Default Styling('default') --&gt;
+                    &lt;rs-collapse&gt;
+                      &lt;rs-collapse-item title="Collapse Item 1"&gt;Collapse Item 1 content&lt;/rs-collapse-item&gt;
+                      &lt;rs-collapse-item title="Collapse Item 2"&gt;Collapse Item 2 content&lt;/rs-collapse-item&gt;
+                    &lt;/rs-collapse&gt;
 
-                &lt;!-- Default Styling('border') --&gt;
-                &lt;rs-collapse type="border"&gt;
-                  &lt;rs-collapse-item title="Collapse Item 1"&gt;Collapse Item 1 content&lt;/rs-collapse-item&gt;
-                  &lt;rs-collapse-item title="Collapse Item 2"&gt;Collapse Item 2 content&lt;/rs-collapse-item&gt;
-                &lt;/rs-collapse&gt;
+                    &lt;!-- Border Styling('border') --&gt;
+                    &lt;rs-collapse type="border"&gt;
+                      &lt;rs-collapse-item title="Collapse Item 1"&gt;Collapse Item 1 content&lt;/rs-collapse-item&gt;
+                      &lt;rs-collapse-item title="Collapse Item 2"&gt;Collapse Item 2 content&lt;/rs-collapse-item&gt;
+                    &lt;/rs-collapse&gt;
 
-                &lt;!-- Default Styling('card') --&gt;
-                &lt;rs-collapse type="card"&gt;
-                  &lt;rs-collapse-item title="Collapse Item 1"&gt;Collapse Item 1 content&lt;/rs-collapse-item&gt;
-                  &lt;rs-collapse-item title="Collapse Item 2"&gt;Collapse Item 2 content&lt;/rs-collapse-item&gt;
-                &lt;/rs-collapse&gt;
-              &lt;/template&gt;
-
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
+                    &lt;!-- Card Styling('card') --&gt;
+                    &lt;rs-collapse type="card"&gt;
+                      &lt;rs-collapse-item title="Collapse Item 1"&gt;Collapse Item 1 content&lt;/rs-collapse-item&gt;
+                      &lt;rs-collapse-item title="Collapse Item 2"&gt;Collapse Item 2 content&lt;/rs-collapse-item&gt;
+                    &lt;/rs-collapse&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -211,3 +263,15 @@ const showCode3 = ref(false);
     </rs-card>
   </div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

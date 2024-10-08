@@ -2,10 +2,36 @@
 definePageMeta({
   title: "Buttons",
 });
-const showCode1 = ref(false);
-const showCode2 = ref(false);
-const showCode3 = ref(false);
-const showCode4 = ref(false);
+
+const showCode = reactive({});
+const tooltips = reactive({});
+
+const toggleCode = (section) => {
+  showCode[section] = !showCode[section];
+};
+
+const copyCode = (codeId) => {
+  const codeElement = document.getElementById(codeId);
+  if (codeElement) {
+    navigator.clipboard
+      .writeText(codeElement.textContent)
+      .then(() => {
+        console.log("Code copied to clipboard");
+        showTooltip(codeId, "Code copied!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy code: ", err);
+        showTooltip(codeId, "Failed to copy code");
+      });
+  }
+};
+
+const showTooltip = (codeId, message) => {
+  tooltips[codeId] = message;
+  setTimeout(() => {
+    tooltips[codeId] = null;
+  }, 2000);
+};
 </script>
 
 <template>
@@ -14,31 +40,39 @@ const showCode4 = ref(false);
     <rs-card>
       <template #header> Default </template>
       <template #body>
-        <p class="mb-4">Use the <code>rs-button</code> to show badges.</p>
+        <p class="mb-4">Use the <code>rs-button</code> to show buttons.</p>
         <div class="flex flex-wrap items-center justify-start gap-x-6">
           <rs-button> Button </rs-button>
         </div>
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
-            class="text-sm border border-slate-200 py-1 px-3 rounded-lg my-2"
-            @click="showCode1 ? (showCode1 = false) : (showCode1 = true)"
+            class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
+            @click="toggleCode('default')"
           >
-            Show Code
+            {{ showCode.default ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div v-show="showCode1" v-highlight>
-              <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-button&gt;Button&lt;/rs-button&gt;
-              &lt;/template&gt;
-
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
+            <div v-show="showCode.default" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeDefault')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeDefault']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeDefault"] }}
+              </span>
+              <NuxtScrollbar style="max-height: 300px">
+                <pre id="codeDefault" class="language-html shadow-none">
+                  <code>
+                    &lt;rs-button&gt;Button&lt;/rs-button&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -65,32 +99,40 @@ const showCode4 = ref(false);
           <rs-button variant="danger"> Danger </rs-button>
         </div>
 
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
-            class="text-sm border border-slate-200 py-1 px-3 rounded-lg my-2"
-            @click="showCode2 ? (showCode2 = false) : (showCode2 = true)"
+            class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
+            @click="toggleCode('variant')"
           >
-            Show Code
+            {{ showCode.variant ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div v-show="showCode2" v-highlight>
-              <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-button variant="primary"&gt;Primary&lt;/rs-button&gt;
-                &lt;rs-button variant="secondary"&gt;Secondary&lt;/rs-button&gt;
-                &lt;rs-button variant="info"&gt;Info&lt;/rs-button&gt;
-                &lt;rs-button variant="success"&gt;Success&lt;/rs-button&gt;
-                &lt;rs-button variant="warning"&gt;Warning&lt;/rs-button&gt;
-                &lt;rs-button variant="danger"&gt;Danger&lt;/rs-button&gt;
-              &lt;/template&gt;
-
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
+            <div v-show="showCode.variant" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeVariant')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeVariant']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeVariant"] }}
+              </span>
+              <NuxtScrollbar style="max-height: 300px">
+                <pre id="codeVariant" class="language-html shadow-none">
+                  <code>
+                    &lt;rs-button variant="primary"&gt;Primary&lt;/rs-button&gt;
+                    &lt;rs-button variant="secondary"&gt;Secondary&lt;/rs-button&gt;
+                    &lt;rs-button variant="info"&gt;Info&lt;/rs-button&gt;
+                    &lt;rs-button variant="success"&gt;Success&lt;/rs-button&gt;
+                    &lt;rs-button variant="warning"&gt;Warning&lt;/rs-button&gt;
+                    &lt;rs-button variant="danger"&gt;Danger&lt;/rs-button&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -161,49 +203,57 @@ const showCode4 = ref(false);
           </div>
         </div>
 
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
-            class="text-sm border border-slate-200 py-1 px-3 rounded-lg my-2"
-            @click="showCode3 ? (showCode3 = false) : (showCode3 = true)"
+            class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
+            @click="toggleCode('variantType')"
           >
-            Show Code
+            {{ showCode.variantType ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div v-show="showCode3" v-highlight>
-              <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;!-- Fill Button --&gt;
-                &lt;rs-button variant="primary"&gt;Primary&lt;/rs-button&gt;
-                &lt;rs-button variant="secondary"&gt;Secondary&lt;/rs-button&gt;
-                &lt;rs-button variant="info"&gt;Info&lt;/rs-button&gt;
-                &lt;rs-button variant="success"&gt;Success&lt;/rs-button&gt;
-                &lt;rs-button variant="warning"&gt;Warning&lt;/rs-button&gt;
-                &lt;rs-button variant="danger"&gt;Danger&lt;/rs-button&gt;
+            <div v-show="showCode.variantType" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeVariantType')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeVariantType']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeVariantType"] }}
+              </span>
+              <NuxtScrollbar style="max-height: 300px">
+                <pre id="codeVariantType" class="language-html shadow-none">
+                  <code>
+                    &lt;!-- Fill Button --&gt;
+                    &lt;rs-button variant="primary"&gt;Primary&lt;/rs-button&gt;
+                    &lt;rs-button variant="secondary"&gt;Secondary&lt;/rs-button&gt;
+                    &lt;rs-button variant="info"&gt;Info&lt;/rs-button&gt;
+                    &lt;rs-button variant="success"&gt;Success&lt;/rs-button&gt;
+                    &lt;rs-button variant="warning"&gt;Warning&lt;/rs-button&gt;
+                    &lt;rs-button variant="danger"&gt;Danger&lt;/rs-button&gt;
 
-                &lt;!-- Outline Button --&gt;
-                &lt;rs-button variant="primary-outline"&gt;Primary&lt;/rs-button&gt;
-                &lt;rs-button variant="secondary-outline"&gt;Secondary&lt;/rs-button&gt;
-                &lt;rs-button variant="info-outline"&gt;Info&lt;/rs-button&gt;
-                &lt;rs-button variant="success-outline"&gt;Success&lt;/rs-button&gt;
-                &lt;rs-button variant="warning-outline"&gt;Warning&lt;/rs-button&gt;
-                &lt;rs-button variant="danger-outline"&gt;Danger&lt;/rs-button&gt;
+                    &lt;!-- Outline Button --&gt;
+                    &lt;rs-button variant="primary-outline"&gt;Primary&lt;/rs-button&gt;
+                    &lt;rs-button variant="secondary-outline"&gt;Secondary&lt;/rs-button&gt;
+                    &lt;rs-button variant="info-outline"&gt;Info&lt;/rs-button&gt;
+                    &lt;rs-button variant="success-outline"&gt;Success&lt;/rs-button&gt;
+                    &lt;rs-button variant="warning-outline"&gt;Warning&lt;/rs-button&gt;
+                    &lt;rs-button variant="danger-outline"&gt;Danger&lt;/rs-button&gt;
 
-                &lt;!-- Text Button --&gt;
-                &lt;rs-button variant="primary-text"&gt;Primary&lt;/rs-button&gt;
-                &lt;rs-button variant="secondary-text"&gt;Secondary&lt;/rs-button&gt;
-                &lt;rs-button variant="info-text"&gt;Info&lt;/rs-button&gt;
-                &lt;rs-button variant="success-text"&gt;Success&lt;/rs-button&gt;
-                &lt;rs-button variant="warning-text"&gt;Warning&lt;/rs-button&gt;
-                &lt;rs-button variant="danger-text"&gt;Danger&lt;/rs-button&gt;
-              &lt;/template&gt;
-
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
+                    &lt;!-- Text Button --&gt;
+                    &lt;rs-button variant="primary-text"&gt;Primary&lt;/rs-button&gt;
+                    &lt;rs-button variant="secondary-text"&gt;Secondary&lt;/rs-button&gt;
+                    &lt;rs-button variant="info-text"&gt;Info&lt;/rs-button&gt;
+                    &lt;rs-button variant="success-text"&gt;Success&lt;/rs-button&gt;
+                    &lt;rs-button variant="warning-text"&gt;Warning&lt;/rs-button&gt;
+                    &lt;rs-button variant="danger-text"&gt;Danger&lt;/rs-button&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -225,29 +275,37 @@ const showCode4 = ref(false);
           <rs-button size="md"> Medium </rs-button>
           <rs-button size="lg"> Large </rs-button>
         </div>
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
-            class="text-sm border border-slate-200 py-1 px-3 rounded-lg my-2"
-            @click="showCode4 ? (showCode4 = false) : (showCode4 = true)"
+            class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
+            @click="toggleCode('size')"
           >
-            Show Code
+            {{ showCode.size ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div v-show="showCode4" v-highlight>
-              <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-button size="sm"&gt;Small&lt;/rs-button&gt;
-                &lt;rs-button size="md"&gt;Medium&lt;/rs-button&gt;
-                &lt;rs-button size="lg"&gt;Large&lt;/rs-button&gt;
-              &lt;/template&gt;
-
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
+            <div v-show="showCode.size" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeSize')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeSize']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeSize"] }}
+              </span>
+              <NuxtScrollbar style="max-height: 300px">
+                <pre id="codeSize" class="language-html shadow-none">
+                  <code>
+                    &lt;rs-button size="sm"&gt;Small&lt;/rs-button&gt;
+                    &lt;rs-button size="md"&gt;Medium&lt;/rs-button&gt;
+                    &lt;rs-button size="lg"&gt;Large&lt;/rs-button&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -256,3 +314,15 @@ const showCode4 = ref(false);
     </rs-card>
   </div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

@@ -2,8 +2,36 @@
 definePageMeta({
   title: "Badges",
 });
-const showCode = ref(false);
-const showCode2 = ref(false);
+
+const showCode = reactive({});
+const tooltips = reactive({});
+
+const toggleCode = (section) => {
+  showCode[section] = !showCode[section];
+};
+
+const copyCode = (codeId) => {
+  const codeElement = document.getElementById(codeId);
+  if (codeElement) {
+    navigator.clipboard
+      .writeText(codeElement.textContent)
+      .then(() => {
+        console.log("Kod disalin ke papan klip");
+        showTooltip(codeId, "Kod disalin!");
+      })
+      .catch((err) => {
+        console.error("Gagal menyalin kod: ", err);
+        showTooltip(codeId, "Gagal menyalin kod");
+      });
+  }
+};
+
+const showTooltip = (codeId, message) => {
+  tooltips[codeId] = message;
+  setTimeout(() => {
+    tooltips[codeId] = null;
+  }, 2000);
+};
 </script>
 
 <template>
@@ -25,28 +53,36 @@ const showCode2 = ref(false);
         <div class="flex justify-end">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="showCode ? (showCode = false) : (showCode = true)"
+            @click="toggleCode('defaultBadges')"
           >
-            Show Code
+            {{ showCode.defaultBadges ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div v-show="showCode" v-highlight>
-              <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-badge variant="primary"&gt;Primary&lt;/rs-badge&gt;
-                &lt;rs-badge variant="info"&gt;Info&lt;/rs-badge&gt;
-                &lt;rs-badge variant="success"&gt;Success&lt;/rs-badge&gt;
-                &lt;rs-badge variant="warning"&gt;Warning&lt;/rs-badge&gt;
-                &lt;rs-badge variant="danger"&gt;Danger&lt;/rs-badge&gt;
-              &lt;/template&gt;
-
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
+            <div v-show="showCode.defaultBadges" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeDefaultBadges')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeDefaultBadges']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeDefaultBadges"] }}
+              </span>
+              <NuxtScrollbar style="max-height: 300px">
+                <pre id="codeDefaultBadges" class="language-html shadow-none">
+                  <code>
+                    &lt;rs-badge variant="primary"&gt;Primary&lt;/rs-badge&gt;
+                    &lt;rs-badge variant="info"&gt;Info&lt;/rs-badge&gt;
+                    &lt;rs-badge variant="success"&gt;Success&lt;/rs-badge&gt;
+                    &lt;rs-badge variant="warning"&gt;Warning&lt;/rs-badge&gt;
+                    &lt;rs-badge variant="danger"&gt;Danger&lt;/rs-badge&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -64,45 +100,75 @@ const showCode2 = ref(false);
           badges.
         </p>
         <div class="grid grid-cols-3 md:grid-cols-6 gap-4 gap-y-0">
-          <rs-badge variant="primary" icon="material-symbols:star-outline-rounded" class="mb-4">
+          <rs-badge
+            variant="primary"
+            icon="material-symbols:star-outline-rounded"
+            class="mb-4"
+          >
             Primary
           </rs-badge>
-          <rs-badge variant="info" icon="material-symbols:star-outline-rounded" class="mb-4"> Info </rs-badge>
-          <rs-badge variant="success" icon="material-symbols:star-outline-rounded" class="mb-4">
+          <rs-badge
+            variant="info"
+            icon="material-symbols:star-outline-rounded"
+            class="mb-4"
+          >
+            Info
+          </rs-badge>
+          <rs-badge
+            variant="success"
+            icon="material-symbols:star-outline-rounded"
+            class="mb-4"
+          >
             Success
           </rs-badge>
-          <rs-badge variant="warning" icon="material-symbols:star-outline-rounded" class="mb-4">
+          <rs-badge
+            variant="warning"
+            icon="material-symbols:star-outline-rounded"
+            class="mb-4"
+          >
             Warning
           </rs-badge>
-          <rs-badge variant="danger" icon="material-symbols:star-outline-rounded" class="mb-4">
+          <rs-badge
+            variant="danger"
+            icon="material-symbols:star-outline-rounded"
+            class="mb-4"
+          >
             Danger
           </rs-badge>
         </div>
         <div class="flex justify-end">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="showCode2 ? (showCode2 = false) : (showCode2 = true)"
+            @click="toggleCode('badgesWithIcon')"
           >
-            Show Code
+            {{ showCode.badgesWithIcon ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div v-show="showCode2" v-highlight>
-              <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-badge variant="primary" icon="material-symbols:star-outline-rounded"&gt;Primary&lt;/rs-badge&gt;
-                &lt;rs-badge variant="info" icon="material-symbols:star-outline-rounded"&gt;Info&lt;/rs-badge&gt;
-                &lt;rs-badge variant="success" icon="material-symbols:star-outline-rounded"&gt;Success&lt;/rs-badge&gt;
-                &lt;rs-badge variant="warning" icon="material-symbols:star-outline-rounded"&gt;Warning&lt;/rs-badge&gt;
-                &lt;rs-badge variant="danger" icon="material-symbols:star-outline-rounded"&gt;Danger&lt;/rs-badge&gt;
-              &lt;/template&gt;
-
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
+            <div v-show="showCode.badgesWithIcon" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeBadgesWithIcon')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeBadgesWithIcon']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeBadgesWithIcon"] }}
+              </span>
+              <NuxtScrollbar style="max-height: 300px">
+                <pre id="codeBadgesWithIcon" class="language-html shadow-none">
+                  <code>
+                    &lt;rs-badge variant="primary" icon="material-symbols:star-outline-rounded"&gt;Primary&lt;/rs-badge&gt;
+                    &lt;rs-badge variant="info" icon="material-symbols:star-outline-rounded"&gt;Info&lt;/rs-badge&gt;
+                    &lt;rs-badge variant="success" icon="material-symbols:star-outline-rounded"&gt;Success&lt;/rs-badge&gt;
+                    &lt;rs-badge variant="warning" icon="material-symbols:star-outline-rounded"&gt;Warning&lt;/rs-badge&gt;
+                    &lt;rs-badge variant="danger" icon="material-symbols:star-outline-rounded"&gt;Danger&lt;/rs-badge&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -111,3 +177,15 @@ const showCode2 = ref(false);
     </rs-card>
   </div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

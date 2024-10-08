@@ -19,13 +19,35 @@ const showModal = ref({
   modal13: false,
 });
 
-const showCode = ref({
-  code1: false,
-  code2: false,
-  code3: false,
-  code4: false,
-  code5: false,
-});
+const showCode = reactive({});
+const tooltips = reactive({});
+
+const toggleCode = (section) => {
+  showCode[section] = !showCode[section];
+};
+
+const copyCode = (codeId) => {
+  const codeElement = document.getElementById(codeId);
+  if (codeElement) {
+    navigator.clipboard
+      .writeText(codeElement.textContent)
+      .then(() => {
+        console.log("Code copied to clipboard");
+        showTooltip(codeId, "Code copied!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy code: ", err);
+        showTooltip(codeId, "Failed to copy code");
+      });
+  }
+};
+
+const showTooltip = (codeId, message) => {
+  tooltips[codeId] = message;
+  setTimeout(() => {
+    tooltips[codeId] = null;
+  }, 2000);
+};
 
 const clickOK = () => {
   alert("You have clicked OK");
@@ -57,41 +79,49 @@ const clickCancel = () => {
         >
           This is the content of modal.
         </rs-modal>
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="
-              showCode.code1
-                ? (showCode.code1 = false)
-                : (showCode.code1 = true)
-            "
+            @click="toggleCode('default')"
           >
-            Show Code
+            {{ showCode.default ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div class="z-0" v-show="showCode.code1" v-highlight>
+            <div v-show="showCode.default" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeDefault')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeDefault']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeDefault"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-button @click="showModal = true"&gt;Open Modal&lt;/rs-button&gt;
-                &lt;rs-modal title="This is a modal"  v-model="showModal"&gt;
-                  This is the content of small modal.
-                &lt;/rs-modal&gt;
-                &lt;rs-button @click="showModalHideOverlay = true"&gt;Open Modal&lt;/rs-button&gt;
-                &lt;rs-modal title="This is a modal"  v-model="showModalHideOverlay" hide-overlay&gt;
-                  This is the content of small modal.
-                &lt;/rs-modal&gt;
-              &lt;/template&gt;
+                <pre id="codeDefault" class="language-html shadow-none">
+                  <code>
+                    &lt;template&gt; 
+                      &lt;rs-button @click="showModal = true"&gt;Open Modal&lt;/rs-button&gt;
+                      &lt;rs-modal title="This is a modal"  v-model="showModal"&gt;
+                        This is the content of small modal.
+                      &lt;/rs-modal&gt;
+                      &lt;rs-button @click="showModalHideOverlay = true"&gt;Open Modal&lt;/rs-button&gt;
+                      &lt;rs-modal title="This is a modal"  v-model="showModalHideOverlay" hide-overlay&gt;
+                        This is the content of small modal.
+                      &lt;/rs-modal&gt;
+                    &lt;/template&gt;
 
-              &lt;script setup&gt;
-              const showModal = ref(false);
-              const showModalHideOverlay = ref(false); 
-              &lt;/script&gt;
-            </code>
-          </pre>
+                    &lt;script setup&gt;
+                    const showModal = ref(false);
+                    const showModalHideOverlay = ref(false); 
+                    &lt;/script&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -121,46 +151,54 @@ const clickCancel = () => {
         <rs-modal title="This is a modal" size="lg" v-model="showModal.modal4">
           This is the content of large modal.
         </rs-modal>
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="
-              showCode.code2
-                ? (showCode.code2 = false)
-                : (showCode.code2 = true)
-            "
+            @click="toggleCode('size')"
           >
-            Show Code
+            {{ showCode.size ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div class="z-0" v-show="showCode.code2" v-highlight>
+            <div v-show="showCode.size" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeSize')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeSize']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeSize"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-button @click="showModalSmall = true"&gt;Open Modal&lt;/rs-button&gt;
-                &lt;rs-modal title="This is a modal" size="sm"  v-model="showModalSmall"&gt;
-                  This is the content of small modal.
-                &lt;/rs-modal&gt;
-                &lt;rs-button @click="showModalMedium = true"&gt;Open Modal&lt;/rs-button&gt;
-                &lt;rs-modal title="This is a modal" size="md"  v-model="showModalMedium"&gt;
-                  This is the content of medium modal.
-                &lt;/rs-modal&gt;
-                &lt;rs-button @click="showModaLarge = true"&gt;Open Modal&lt;/rs-button&gt;
-                &lt;rs-modal title="This is a modal" size="lg"  v-model="showModaLarge"&gt;
-                  This is the content of large modal.
-                &lt;/rs-modal&gt;
-              &lt;/template&gt;
+                <pre id="codeSize" class="language-html shadow-none">
+                  <code>
+                    &lt;template&gt; 
+                      &lt;rs-button @click="showModalSmall = true"&gt;Open Modal&lt;/rs-button&gt;
+                      &lt;rs-modal title="This is a modal" size="sm"  v-model="showModalSmall"&gt;
+                        This is the content of small modal.
+                      &lt;/rs-modal&gt;
+                      &lt;rs-button @click="showModalMedium = true"&gt;Open Modal&lt;/rs-button&gt;
+                      &lt;rs-modal title="This is a modal" size="md"  v-model="showModalMedium"&gt;
+                        This is the content of medium modal.
+                      &lt;/rs-modal&gt;
+                      &lt;rs-button @click="showModaLarge = true"&gt;Open Modal&lt;/rs-button&gt;
+                      &lt;rs-modal title="This is a modal" size="lg"  v-model="showModaLarge"&gt;
+                        This is the content of large modal.
+                      &lt;/rs-modal&gt;
+                    &lt;/template&gt;
 
-              &lt;script setup&gt; 
-              const showModalSmall = ref(false);
-              const showModalMedium = ref(false);
-              const showModaLarge = ref(false);
-              &lt;/script&gt;
-            </code>
-          </pre>
+                    &lt;script setup&gt; 
+                    const showModalSmall = ref(false);
+                    const showModalMedium = ref(false);
+                    const showModaLarge = ref(false);
+                    &lt;/script&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -203,46 +241,54 @@ const clickCancel = () => {
         >
           This is the content of modal.
         </rs-modal>
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="
-              showCode.code3
-                ? (showCode.code3 = false)
-                : (showCode.code3 = true)
-            "
+            @click="toggleCode('position')"
           >
-            Show Code
+            {{ showCode.position ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div class="z-0" v-show="showCode.code3" v-highlight>
+            <div v-show="showCode.position" class="relative" v-highlight>
+              <button
+                @click="copyCode('codePosition')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codePosition']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codePosition"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-button @click="showModalTop = true"&gt;Open Modal&lt;/rs-button&gt;
-                &lt;rs-modal title="This is a modal" position="top" v-model="showModalTop"&gt;
-                  This is the content of small modal.
-                &lt;/rs-modal&gt;
-                &lt;rs-button @click="showModalCenter = true"&gt;Open Modal&lt;/rs-button&gt;
-                &lt;rs-modal title="This is a modal" position="center" v-model="showModalCenter"&gt;
-                  This is the content of medium modal.
-                &lt;/rs-modal&gt;
-                &lt;rs-button @click="showModalBottom = true"&gt;Open Modal&lt;/rs-button&gt;
-                &lt;rs-modal title="This is a modal" position="bottom" v-model="showModalBottom"&gt;
-                  This is the content of large modal.
-                &lt;/rs-modal&gt;
-              &lt;/template&gt;
+                <pre id="codePosition" class="language-html shadow-none">
+                  <code>
+                    &lt;template&gt; 
+                      &lt;rs-button @click="showModalTop = true"&gt;Open Modal&lt;/rs-button&gt;
+                      &lt;rs-modal title="This is a modal" position="top" v-model="showModalTop"&gt;
+                        This is the content of small modal.
+                      &lt;/rs-modal&gt;
+                      &lt;rs-button @click="showModalCenter = true"&gt;Open Modal&lt;/rs-button&gt;
+                      &lt;rs-modal title="This is a modal" position="center" v-model="showModalCenter"&gt;
+                        This is the content of medium modal.
+                      &lt;/rs-modal&gt;
+                      &lt;rs-button @click="showModalBottom = true"&gt;Open Modal&lt;/rs-button&gt;
+                      &lt;rs-modal title="This is a modal" position="bottom" v-model="showModalBottom"&gt;
+                        This is the content of large modal.
+                      &lt;/rs-modal&gt;
+                    &lt;/template&gt;
 
-              &lt;script setup&gt; 
-              const showModalTop = ref(false);
-              const showModalCenter = ref(false);
-              const showModalBottom = ref(false);
-              &lt;/script&gt;
-            </code>
-          </pre>
+                    &lt;script setup&gt; 
+                    const showModalTop = ref(false);
+                    const showModalCenter = ref(false);
+                    const showModalBottom = ref(false);
+                    &lt;/script&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -293,53 +339,61 @@ const clickCancel = () => {
         >
           This is the content of modal.
         </rs-modal>
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="
-              showCode.code4
-                ? (showCode.code4 = false)
-                : (showCode.code4 = true)
-            "
+            @click="toggleCode('customize')"
           >
-            Show Code
+            {{ showCode.customize ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div class="z-0" v-show="showCode.code4" v-highlight>
+            <div v-show="showCode.customize" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeCustomize')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeCustomize']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeCustomize"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-button @click="showModal = true"&gt;Open Modal&lt;/rs-button&gt;
-                &lt;rs-modal v-model="showModal"&gt;
-                  &lt;template #header&gt; Custom Header &lt;/template&gt;
-                  &lt;template #body&gt; Custom Body &lt;/template&gt;
-                  &lt;template #footer&gt; Custom Footer &lt;/template&gt;
-                &lt;/rs-modal&gt;
-                &lt;rs-button @click="showModalCustom = true"&gt;Custom Button&lt;/rs-button&gt;
-                &lt;rs-modal v-model="showModalCustom" cancel-title="Close" ok-title="Accept"&gt;
-                  This is modal content.
-                &lt;/rs-modal&gt;
-                &lt;rs-button @click="showModalOK = true"&gt;Ok Only&lt;/rs-button&gt;
-                &lt;rs-modal v-model="showModalOK" ok-only&gt;
-                  This is modal content.
-                &lt;/rs-modal&gt;
-                &lt;rs-button @click="showModalCancel = true"&gt;Cancel Only&lt;/rs-button&gt;
-                &lt;rs-modal v-model="showModalCancel" cancel-only&gt;
-                  This is modal content.
-                &lt;/rs-modal&gt;
-              &lt;/template&gt;
+                <pre id="codeCustomize" class="language-html shadow-none">
+                  <code>
+                    &lt;template&gt; 
+                      &lt;rs-button @click="showModal = true"&gt;Open Modal&lt;/rs-button&gt;
+                      &lt;rs-modal v-model="showModal"&gt;
+                        &lt;template #header&gt; Custom Header &lt;/template&gt;
+                        &lt;template #body&gt; Custom Body &lt;/template&gt;
+                        &lt;template #footer&gt; Custom Footer &lt;/template&gt;
+                      &lt;/rs-modal&gt;
+                      &lt;rs-button @click="showModalCustom = true"&gt;Custom Button&lt;/rs-button&gt;
+                      &lt;rs-modal v-model="showModalCustom" cancel-title="Close" ok-title="Accept"&gt;
+                        This is modal content.
+                      &lt;/rs-modal&gt;
+                      &lt;rs-button @click="showModalOK = true"&gt;Ok Only&lt;/rs-button&gt;
+                      &lt;rs-modal v-model="showModalOK" ok-only&gt;
+                        This is modal content.
+                      &lt;/rs-modal&gt;
+                      &lt;rs-button @click="showModalCancel = true"&gt;Cancel Only&lt;/rs-button&gt;
+                      &lt;rs-modal v-model="showModalCancel" cancel-only&gt;
+                        This is modal content.
+                      &lt;/rs-modal&gt;
+                    &lt;/template&gt;
 
-              &lt;script setup&gt; 
-              const showModal = ref(false);
-              const showModalCustom = ref(false);
-              const showModalOK = ref(false);
-              const showModalCancel = ref(false);
-              &lt;/script&gt;
-            </code>
-          </pre>
+                    &lt;script setup&gt; 
+                    const showModal = ref(false);
+                    const showModalCustom = ref(false);
+                    const showModalOK = ref(false);
+                    const showModalCancel = ref(false);
+                    &lt;/script&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -365,43 +419,51 @@ const clickCancel = () => {
         >
           This is the content of modal.
         </rs-modal>
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="
-              showCode.code5
-                ? (showCode.code5 = false)
-                : (showCode.code5 = true)
-            "
+            @click="toggleCode('bindFunction')"
           >
-            Show Code
+            {{ showCode.bindFunction ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div class="z-0" v-show="showCode.code5" v-highlight>
+            <div v-show="showCode.bindFunction" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeBindFunction')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeBindFunction']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeBindFunction"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-button @click="showModal = true"&gt;Open Modal&lt;/rs-button&gt;
-                &lt;rs-modal title="This is a modal" v-model="showModal" :ok-callback="clickOK" :cancel-callback="clickCancel"&gt;
-                  This is the content of small modal.
-                &lt;/rs-modal&gt;
-              &lt;/template&gt;
+                <pre id="codeBindFunction" class="language-html shadow-none">
+                  <code>
+                    &lt;template&gt; 
+                      &lt;rs-button @click="showModal = true"&gt;Open Modal&lt;/rs-button&gt;
+                      &lt;rs-modal title="This is a modal" v-model="showModal" :ok-callback="clickOK" :cancel-callback="clickCancel"&gt;
+                        This is the content of small modal.
+                      &lt;/rs-modal&gt;
+                    &lt;/template&gt;
 
-              &lt;script setup&gt; 
-              const showModal = ref(false);
-              const clickOK = () => {
-                alert("You have clicked OK");
-              };
-          
-              const clickCancel = () => {
-                alert("You have clicked Cancel");
-              };
-              &lt;/script&gt;
-            </code>
-          </pre>
+                    &lt;script setup&gt; 
+                    const showModal = ref(false);
+                    const clickOK = () => {
+                      alert("You have clicked OK");
+                    };
+                
+                    const clickCancel = () => {
+                      alert("You have clicked Cancel");
+                    };
+                    &lt;/script&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -410,3 +472,15 @@ const clickCancel = () => {
     </rs-card>
   </div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

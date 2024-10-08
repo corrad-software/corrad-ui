@@ -5,14 +5,35 @@ definePageMeta({
 
 const changeKey = ref(0);
 
-const showCode1 = ref(false);
-const showCode2 = ref(false);
-const showCode3 = ref(false);
-const showCode4 = ref(false);
-const showCode5 = ref(false);
-const showCode6 = ref(false);
-const showCode7 = ref(false);
-const showCode8 = ref(false);
+const showCode = reactive({});
+const tooltips = reactive({});
+
+const toggleCode = (section) => {
+  showCode[section] = !showCode[section];
+};
+
+const copyCode = (codeId) => {
+  const codeElement = document.getElementById(codeId);
+  if (codeElement) {
+    navigator.clipboard
+      .writeText(codeElement.textContent)
+      .then(() => {
+        console.log("Code copied to clipboard");
+        showTooltip(codeId, "Code copied!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy code: ", err);
+        showTooltip(codeId, "Failed to copy code");
+      });
+  }
+};
+
+const showTooltip = (codeId, message) => {
+  tooltips[codeId] = message;
+  setTimeout(() => {
+    tooltips[codeId] = null;
+  }, 2000);
+};
 
 const series = ref([
   {
@@ -132,9 +153,9 @@ onMounted(() => {
       We ensure Apex Chart is fully supported using vue 3. Read the full
       documentation
       <a
-        href="https://github.com/apexcharts/vue3-apexcharts"
-        class="text-blue-500 hover:underline"
+        href="https://apexcharts.com/docs/vue-charts/"
         target="_blank"
+        class="text-blue-500 hover:text-blue-600"
         >here</a
       >.
     </p>
@@ -154,95 +175,107 @@ onMounted(() => {
               :series="series"
             ></VueApexCharts>
           </ClientOnly>
-          <div class="flex justify-end">
+          <div class="flex justify-end mt-4">
             <button
               class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-              @click="showCode1 ? (showCode1 = false) : (showCode1 = true)"
+              @click="toggleCode('bar')"
             >
-              Show Code
+              {{ showCode.bar ? "Hide Code" : "Show Code" }}
             </button>
           </div>
           <ClientOnly>
             <transition name="fade">
-              <div class="z-0" v-show="showCode1" v-highlight>
+              <div v-show="showCode.bar" class="relative" v-highlight>
+                <button
+                  @click="copyCode('codeBar')"
+                  class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+                >
+                  Copy
+                </button>
+                <span
+                  v-if="tooltips['codeBar']"
+                  class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+                >
+                  {{ tooltips["codeBar"] }}
+                </span>
                 <NuxtScrollbar style="height: 400px">
-                  <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;ClientOnly&gt;
-                  &lt;VueApexCharts
-                    :key="changeKey"
-                    width="100%"
-                    height="300"
-                    type="bar"
-                    :options="chartOptions"
-                    :series="series"
-                  &gt;&lt;/VueApexCharts&gt;
-                &lt;/ClientOnly&gt;
-              &lt;/template&gt;
+                  <pre id="codeBar" class="language-html shadow-none">
+                    <code>
+                      &lt;template&gt; 
+                        &lt;ClientOnly&gt;
+                          &lt;VueApexCharts
+                            :key="changeKey"
+                            width="100%"
+                            height="300"
+                            type="bar"
+                            :options="chartOptions"
+                            :series="series"
+                          &gt;&lt;/VueApexCharts&gt;
+                        &lt;/ClientOnly&gt;
+                      &lt;/template&gt;
 
-              &lt;script setup&gt;
-              
-              const changeKey = ref(0);
-              
-              const series = ref([
-                {
-                  name: "Series 1",
-                  data: [30, 40, 35, 50, 49, 60, 70, 91],
-                },
-                {
-                  name: "Series 2",
-                  data: [20, 10, 25, 40, 39, 50, 60, 71],
-                },
-                {
-                  name: "Series 3",
-                  data: [0, 10, 20, 25, 30, 35, 40, 45],
-                },
-              ]);
+                      &lt;script setup&gt;
+                      const changeKey = ref(0);
+                      
+                      const series = ref([
+                        {
+                          name: "Series 1",
+                          data: [30, 40, 35, 50, 49, 60, 70, 91],
+                        },
+                        {
+                          name: "Series 2",
+                          data: [20, 10, 25, 40, 39, 50, 60, 71],
+                        },
+                        {
+                          name: "Series 3",
+                          data: [0, 10, 20, 25, 30, 35, 40, 45],
+                        },
+                      ]);
 
-              const chartOptions = computed(() => ({
-                chart: {
-                  id: "apexChart",
-                },
-                legend: {
-                  position: "top",
-                },
-                theme: {
-                  mode: "light",
-                  palette: "palette1",
-                },
-                xaxis: {
-                  categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
-                },
-                responsive: [
-                  {
-                    breakpoint: 768,
-                    options: {
-                      legend: {
-                        position: "bottom",
-                      },
-                    },
-                  },
-                ],
-              }));
+                      const chartOptions = computed(() => ({
+                        chart: {
+                          id: "apexChart",
+                        },
+                        legend: {
+                          position: "top",
+                        },
+                        theme: {
+                          mode: "light",
+                          palette: "palette1",
+                        },
+                        xaxis: {
+                          categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
+                        },
+                        responsive: [
+                          {
+                            breakpoint: 768,
+                            options: {
+                              legend: {
+                                position: "bottom",
+                              },
+                            },
+                          },
+                        ],
+                      }));
 
-              onMounted(() => {
-                setTimeout(() => {
-                  changeKey.value++;
-                }, 500);
-              });
-              &lt;/script&gt;
-            </code>
-          </pre>
+                      onMounted(() => {
+                        setTimeout(() => {
+                          changeKey.value++;
+                        }, 500);
+                      });
+                      &lt;/script&gt;
+                    </code>
+                  </pre>
                 </NuxtScrollbar>
               </div>
             </transition>
           </ClientOnly>
         </template>
       </rs-card>
+
       <rs-card>
         <template #header>
-          <h5>Boxplot Chart</h5>
+          <h5>Box Plot Chart</h5>
         </template>
         <template #body>
           <ClientOnly>
@@ -255,83 +288,94 @@ onMounted(() => {
               :series="series2"
             ></VueApexCharts>
           </ClientOnly>
-          <div class="flex justify-end">
+          <div class="flex justify-end mt-4">
             <button
               class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-              @click="showCode2 ? (showCode2 = false) : (showCode2 = true)"
+              @click="toggleCode('boxPlot')"
             >
-              Show Code
+              {{ showCode.boxPlot ? "Hide Code" : "Show Code" }}
             </button>
           </div>
           <ClientOnly>
             <transition name="fade">
-              <div class="z-0" v-show="showCode2" v-highlight>
+              <div v-show="showCode.boxPlot" class="relative" v-highlight>
+                <button
+                  @click="copyCode('codeBoxPlot')"
+                  class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+                >
+                  Copy
+                </button>
+                <span
+                  v-if="tooltips['codeBoxPlot']"
+                  class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+                >
+                  {{ tooltips["codeBoxPlot"] }}
+                </span>
                 <NuxtScrollbar style="height: 400px">
-                  <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;ClientOnly&gt;
-                  &lt;VueApexCharts
-                    :key="changeKey"
-                    width="100%"
-                    height="300"
-                    type="boxPlot"
-                    :options="chartOptions"
-                    :series="series"
-                  &gt;&lt;/VueApexCharts&gt;
-                &lt;/ClientOnly&gt;
-              &lt;/template&gt;
+                  <pre id="codeBoxPlot" class="language-html shadow-none">
+                    <code>
+                      &lt;template&gt; 
+                        &lt;ClientOnly&gt;
+                          &lt;VueApexCharts
+                            :key="changeKey"
+                            width="100%"
+                            height="300"
+                            type="boxPlot"
+                            :options="chartOptions"
+                            :series="series2"
+                          &gt;&lt;/VueApexCharts&gt;
+                        &lt;/ClientOnly&gt;
+                      &lt;/template&gt;
 
-              &lt;script setup&gt;
-              
-              const changeKey = ref(0);
-              
-              const series = ref([
-                {
-                  data: [{ x: "Category 1", y: [30, 40, 35, 50, 49, 60, 70, 91] }],
-                },
-                {
-                  data: [{ x: "Category 2", y: [20, 10, 25, 40, 39, 50, 60, 71] }],
-                },
-                {
-                  data: [{ x: "Category 3", y: [0, 10, 20, 25, 30, 35, 40, 45] }],
-                },
-              ]);
+                      &lt;script setup&gt;
+                      const changeKey = ref(0);
+                      
+                      const series2 = ref([
+                        {
+                          data: [{ x: "Category 1", y: [30, 40, 35, 50, 49, 60, 70, 91] }],
+                        },
+                        {
+                          data: [{ x: "Category 2", y: [20, 10, 25, 40, 39, 50, 60, 71] }],
+                        },
+                        {
+                          data: [{ x: "Category 3", y: [0, 10, 20, 25, 30, 35, 40, 45] }],
+                        },
+                      ]);
 
-              const chartOptions = computed(() => ({
-                chart: {
-                  id: "apexChart",
-                },
-                legend: {
-                  position: "top",
-                },
-                theme: {
-                  mode: "light",
-                  palette: "palette1",
-                },
-                xaxis: {
-                  categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
-                },
-                responsive: [
-                  {
-                    breakpoint: 768,
-                    options: {
-                      legend: {
-                        position: "bottom",
-                      },
-                    },
-                  },
-                ],
-              }));
+                      const chartOptions = computed(() => ({
+                        chart: {
+                          id: "apexChart",
+                        },
+                        legend: {
+                          position: "top",
+                        },
+                        theme: {
+                          mode: "light",
+                          palette: "palette1",
+                        },
+                        xaxis: {
+                          categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
+                        },
+                        responsive: [
+                          {
+                            breakpoint: 768,
+                            options: {
+                              legend: {
+                                position: "bottom",
+                              },
+                            },
+                          },
+                        ],
+                      }));
 
-              onMounted(() => {
-                setTimeout(() => {
-                  changeKey.value++;
-                }, 500);
-              });
-              &lt;/script&gt;
-            </code>
-          </pre>
+                      onMounted(() => {
+                        setTimeout(() => {
+                          changeKey.value++;
+                        }, 500);
+                      });
+                      &lt;/script&gt;
+                    </code>
+                  </pre>
                 </NuxtScrollbar>
               </div>
             </transition>
@@ -339,7 +383,7 @@ onMounted(() => {
         </template>
       </rs-card>
 
-      <rs-card class="col-span-2">
+      <rs-card>
         <template #header>
           <h5>Line Chart</h5>
         </template>
@@ -354,86 +398,97 @@ onMounted(() => {
               :series="series"
             ></VueApexCharts>
           </ClientOnly>
-          <div class="flex justify-end">
+          <div class="flex justify-end mt-4">
             <button
               class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-              @click="showCode3 ? (showCode3 = false) : (showCode3 = true)"
+              @click="toggleCode('line')"
             >
-              Show Code
+              {{ showCode.line ? "Hide Code" : "Show Code" }}
             </button>
           </div>
           <ClientOnly>
             <transition name="fade">
-              <div class="z-0" v-show="showCode3" v-highlight>
+              <div v-show="showCode.line" class="relative" v-highlight>
+                <button
+                  @click="copyCode('codeLine')"
+                  class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+                >
+                  Copy
+                </button>
+                <span
+                  v-if="tooltips['codeLine']"
+                  class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+                >
+                  {{ tooltips["codeLine"] }}
+                </span>
                 <NuxtScrollbar style="height: 400px">
-                  <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;ClientOnly&gt;
-                  &lt;VueApexCharts
-                    :key="changeKey"
-                    width="100%"
-                    height="300"
-                    type="line"
-                    :options="chartOptions"
-                    :series="series"
-                  &gt;&lt;/VueApexCharts&gt;
-                &lt;/ClientOnly&gt;
-              &lt;/template&gt;
+                  <pre id="codeLine" class="language-html shadow-none">
+                    <code>
+                      &lt;template&gt; 
+                        &lt;ClientOnly&gt;
+                          &lt;VueApexCharts
+                            :key="changeKey"
+                            width="100%"
+                            height="300"
+                            type="line"
+                            :options="chartOptions"
+                            :series="series"
+                          &gt;&lt;/VueApexCharts&gt;
+                        &lt;/ClientOnly&gt;
+                      &lt;/template&gt;
 
-              &lt;script setup&gt;
-              
-              const changeKey = ref(0);
-              
-              const series = ref([
-                {
-                  name: "Series 1",
-                  data: [30, 40, 35, 50, 49, 60, 70, 91],
-                },
-                {
-                  name: "Series 2",
-                  data: [20, 10, 25, 40, 39, 50, 60, 71],
-                },
-                {
-                  name: "Series 3",
-                  data: [0, 10, 20, 25, 30, 35, 40, 45],
-                },
-              ]);
+                      &lt;script setup&gt;
+                      const changeKey = ref(0);
+                      
+                      const series = ref([
+                        {
+                          name: "Series 1",
+                          data: [30, 40, 35, 50, 49, 60, 70, 91],
+                        },
+                        {
+                          name: "Series 2",
+                          data: [20, 10, 25, 40, 39, 50, 60, 71],
+                        },
+                        {
+                          name: "Series 3",
+                          data: [0, 10, 20, 25, 30, 35, 40, 45],
+                        },
+                      ]);
 
-              const chartOptions = computed(() => ({
-                chart: {
-                  id: "apexChart",
-                },
-                legend: {
-                  position: "top",
-                },
-                theme: {
-                  mode: "light",
-                  palette: "palette1",
-                },
-                xaxis: {
-                  categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
-                },
-                responsive: [
-                  {
-                    breakpoint: 768,
-                    options: {
-                      legend: {
-                        position: "bottom",
-                      },
-                    },
-                  },
-                ],
-              }));
+                      const chartOptions = computed(() => ({
+                        chart: {
+                          id: "apexChart",
+                        },
+                        legend: {
+                          position: "top",
+                        },
+                        theme: {
+                          mode: "light",
+                          palette: "palette1",
+                        },
+                        xaxis: {
+                          categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
+                        },
+                        responsive: [
+                          {
+                            breakpoint: 768,
+                            options: {
+                              legend: {
+                                position: "bottom",
+                              },
+                            },
+                          },
+                        ],
+                      }));
 
-              onMounted(() => {
-                setTimeout(() => {
-                  changeKey.value++;
-                }, 500);
-              });
-              &lt;/script&gt;
-            </code>
-          </pre>
+                      onMounted(() => {
+                        setTimeout(() => {
+                          changeKey.value++;
+                        }, 500);
+                      });
+                      &lt;/script&gt;
+                    </code>
+                  </pre>
                 </NuxtScrollbar>
               </div>
             </transition>
@@ -456,73 +511,81 @@ onMounted(() => {
               :series="series3"
             ></VueApexCharts>
           </ClientOnly>
-          <div class="flex justify-end">
+          <div class="flex justify-end mt-4">
             <button
               class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-              @click="showCode4 ? (showCode4 = false) : (showCode4 = true)"
+              @click="toggleCode('donut')"
             >
-              Show Code
+              {{ showCode.donut ? "Hide Code" : "Show Code" }}
             </button>
           </div>
           <ClientOnly>
             <transition name="fade">
-              <div class="z-0" v-show="showCode4" v-highlight>
+              <div v-show="showCode.donut" class="relative" v-highlight>
+                <button
+                  @click="copyCode('codeDonut')"
+                  class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+                >
+                  Copy
+                </button>
+                <span
+                  v-if="tooltips['codeDonut']"
+                  class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+                >
+                  {{ tooltips["codeDonut"] }}
+                </span>
                 <NuxtScrollbar style="height: 400px">
-                  <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;ClientOnly&gt;
-                  &lt;VueApexCharts
-                    :key="changeKey"
-                    width="100%"
-                    height="300"
-                    type="donut"
-                    :options="chartOptions"
-                    :series="series"
-                  &gt;&lt;/VueApexCharts&gt;
-                &lt;/ClientOnly&gt;
-              &lt;/template&gt;
+                  <pre id="codeDonut" class="language-html shadow-none">
+                    <code>
+                      &lt;template&gt; 
+                        &lt;ClientOnly&gt;
+                          &lt;VueApexCharts
+                            :key="changeKey"
+                            width="100%"
+                            height="300"
+                            type="donut"
+                            :options="chartOptions"
+                            :series="series3"
+                          &gt;&lt;/VueApexCharts&gt;
+                        &lt;/ClientOnly&gt;
+                      &lt;/template&gt;
 
-              &lt;script setup&gt;
-              
-              const changeKey = ref(0);
-              
-              const series = ref([30, 40, 35, 50, 49, 60, 70, 91]);
+                      &lt;script setup&gt;
+                      const changeKey = ref(0);
+                      
+                      const series3 = ref([30, 40, 35, 50, 49, 60, 70, 91]);
 
-              const chartOptions = computed(() => ({
-                chart: {
-                  id: "apexChart",
-                },
-                legend: {
-                  position: "top",
-                },
-                theme: {
-                  mode: "light",
-                  palette: "palette1",
-                },
-                xaxis: {
-                  categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
-                },
-                responsive: [
-                  {
-                    breakpoint: 768,
-                    options: {
-                      legend: {
-                        position: "bottom",
-                      },
-                    },
-                  },
-                ],
-              }));
+                      const chartOptions = computed(() => ({
+                        chart: {
+                          id: "apexChart",
+                        },
+                        legend: {
+                          position: "top",
+                        },
+                        theme: {
+                          mode: "light",
+                          palette: "palette1",
+                        },
+                        responsive: [
+                          {
+                            breakpoint: 768,
+                            options: {
+                              legend: {
+                                position: "bottom",
+                              },
+                            },
+                          },
+                        ],
+                      }));
 
-              onMounted(() => {
-                setTimeout(() => {
-                  changeKey.value++;
-                }, 500);
-              });
-              &lt;/script&gt;
-            </code>
-          </pre>
+                      onMounted(() => {
+                        setTimeout(() => {
+                          changeKey.value++;
+                        }, 500);
+                      });
+                      &lt;/script&gt;
+                    </code>
+                  </pre>
                 </NuxtScrollbar>
               </div>
             </transition>
@@ -545,175 +608,81 @@ onMounted(() => {
               :series="series3"
             ></VueApexCharts>
           </ClientOnly>
-          <div class="flex justify-end">
+          <div class="flex justify-end mt-4">
             <button
               class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-              @click="showCode5 ? (showCode5 = false) : (showCode5 = true)"
+              @click="toggleCode('pie')"
             >
-              Show Code
+              {{ showCode.pie ? "Hide Code" : "Show Code" }}
             </button>
           </div>
           <ClientOnly>
             <transition name="fade">
-              <div class="z-0" v-show="showCode5" v-highlight>
+              <div v-show="showCode.pie" class="relative" v-highlight>
+                <button
+                  @click="copyCode('codePie')"
+                  class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+                >
+                  Copy
+                </button>
+                <span
+                  v-if="tooltips['codePie']"
+                  class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+                >
+                  {{ tooltips["codePie"] }}
+                </span>
                 <NuxtScrollbar style="height: 400px">
-                  <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;ClientOnly&gt;
-                  &lt;VueApexCharts
-                    :key="changeKey"
-                    width="100%"
-                    height="300"
-                    type="pie"
-                    :options="chartOptions"
-                    :series="series"
-                  &gt;&lt;/VueApexCharts&gt;
-                &lt;/ClientOnly&gt;
-              &lt;/template&gt;
+                  <pre id="codePie" class="language-html shadow-none">
+                    <code>
+                      &lt;template&gt; 
+                        &lt;ClientOnly&gt;
+                          &lt;VueApexCharts
+                            :key="changeKey"
+                            width="100%"
+                            height="300"
+                            type="pie"
+                            :options="chartOptions"
+                            :series="series3"
+                          &gt;&lt;/VueApexCharts&gt;
+                        &lt;/ClientOnly&gt;
+                      &lt;/template&gt;
 
-              &lt;script setup&gt;
-              
-              const changeKey = ref(0);
-              
-              const series = ref([30, 40, 35, 50, 49, 60, 70, 91]);
+                      &lt;script setup&gt;
+                      const changeKey = ref(0);
+                      
+                      const series3 = ref([30, 40, 35, 50, 49, 60, 70, 91]);
 
-              const chartOptions = computed(() => ({
-                chart: {
-                  id: "apexChart",
-                },
-                legend: {
-                  position: "top",
-                },
-                theme: {
-                  mode: "light",
-                  palette: "palette1",
-                },
-                xaxis: {
-                  categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
-                },
-                responsive: [
-                  {
-                    breakpoint: 768,
-                    options: {
-                      legend: {
-                        position: "bottom",
-                      },
-                    },
-                  },
-                ],
-              }));
+                      const chartOptions = computed(() => ({
+                        chart: {
+                          id: "apexChart",
+                        },
+                        legend: {
+                          position: "top",
+                        },
+                        theme: {
+                          mode: "light",
+                          palette: "palette1",
+                        },
+                        responsive: [
+                          {
+                            breakpoint: 768,
+                            options: {
+                              legend: {
+                                position: "bottom",
+                              },
+                            },
+                          },
+                        ],
+                      }));
 
-              onMounted(() => {
-                setTimeout(() => {
-                  changeKey.value++;
-                }, 500);
-              });
-              &lt;/script&gt;
-            </code>
-          </pre>
-                </NuxtScrollbar>
-              </div>
-            </transition>
-          </ClientOnly>
-        </template>
-      </rs-card>
-
-      <rs-card class="col-span-2">
-        <template #header>
-          <h5>Area Chart</h5>
-        </template>
-        <template #body>
-          <ClientOnly>
-            <VueApexCharts
-              :key="changeKey"
-              width="100%"
-              height="300"
-              type="area"
-              :options="chartOptions"
-              :series="series"
-            ></VueApexCharts>
-          </ClientOnly>
-          <div class="flex justify-end">
-            <button
-              class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-              @click="showCode6 ? (showCode6 = false) : (showCode6 = true)"
-            >
-              Show Code
-            </button>
-          </div>
-          <ClientOnly>
-            <transition name="fade">
-              <div class="z-0" v-show="showCode6" v-highlight>
-                <NuxtScrollbar style="height: 400px">
-                  <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;ClientOnly&gt;
-                  &lt;VueApexCharts
-                    :key="changeKey"
-                    width="100%"
-                    height="300"
-                    type="area"
-                    :options="chartOptions"
-                    :series="series"
-                  &gt;&lt;/VueApexCharts&gt;
-                &lt;/ClientOnly&gt;
-              &lt;/template&gt;
-
-              &lt;script setup&gt;
-              
-              const changeKey = ref(0);
-              
-              const series = ref([
-                {
-                  name: "Series 1",
-                  data: [30, 40, 35, 50, 49, 60, 70, 91],
-                },
-                {
-                  name: "Series 2",
-                  data: [20, 10, 25, 40, 39, 50, 60, 71],
-                },
-                {
-                  name: "Series 3",
-                  data: [0, 10, 20, 25, 30, 35, 40, 45],
-                },
-              ]);
-
-              const chartOptions = computed(() => ({
-                chart: {
-                  id: "apexChart",
-                },
-                legend: {
-                  position: "top",
-                },
-                theme: {
-                  mode: "light",
-                  palette: "palette1",
-                },
-                xaxis: {
-                  categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
-                },
-                responsive: [
-                  {
-                    breakpoint: 768,
-                    options: {
-                      legend: {
-                        position: "bottom",
-                      },
-                    },
-                  },
-                ],
-              }));
-
-              onMounted(() => {
-                setTimeout(() => {
-                  changeKey.value++;
-                }, 500);
-              });
-              &lt;/script&gt;
-            </code>
-          </pre>
+                      onMounted(() => {
+                        setTimeout(() => {
+                          changeKey.value++;
+                        }, 500);
+                      });
+                      &lt;/script&gt;
+                    </code>
+                  </pre>
                 </NuxtScrollbar>
               </div>
             </transition>
@@ -731,91 +700,215 @@ onMounted(() => {
               :key="changeKey"
               width="100%"
               height="300"
+              type="area"
+              :options="chartOptions"
+              :series="series"
+            ></VueApexCharts>
+          </ClientOnly>
+          <div class="flex justify-end mt-4">
+            <button
+              class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
+              @click="toggleCode('area')"
+            >
+              {{ showCode.area ? "Hide Code" : "Show Code" }}
+            </button>
+          </div>
+          <ClientOnly>
+            <transition name="fade">
+              <div v-show="showCode.area" class="relative" v-highlight>
+                <button
+                  @click="copyCode('codeArea')"
+                  class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+                >
+                  Copy
+                </button>
+                <span
+                  v-if="tooltips['codeArea']"
+                  class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+                >
+                  {{ tooltips["codeArea"] }}
+                </span>
+                <NuxtScrollbar style="height: 400px">
+                  <pre id="codeArea" class="language-html shadow-none">
+                    <code>
+                      &lt;template&gt; 
+                        &lt;ClientOnly&gt;
+                          &lt;VueApexCharts
+                            :key="changeKey"
+                            width="100%"
+                            height="300"
+                            type="area"
+                            :options="chartOptions"
+                            :series="series"
+                          &gt;&lt;/VueApexCharts&gt;
+                        &lt;/ClientOnly&gt;
+                      &lt;/template&gt;
+
+                      &lt;script setup&gt;
+                      const changeKey = ref(0);
+                      
+                      const series = ref([
+                        {
+                          name: "Series 1",
+                          data: [30, 40, 35, 50, 49, 60, 70, 91],
+                        },
+                        {
+                          name: "Series 2",
+                          data: [20, 10, 25, 40, 39, 50, 60, 71],
+                        },
+                        {
+                          name: "Series 3",
+                          data: [0, 10, 20, 25, 30, 35, 40, 45],
+                        },
+                      ]);
+
+                      const chartOptions = computed(() => ({
+                        chart: {
+                          id: "apexChart",
+                        },
+                        legend: {
+                          position: "top",
+                        },
+                        theme: {
+                          mode: "light",
+                          palette: "palette1",
+                        },
+                        xaxis: {
+                          categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
+                        },
+                        responsive: [
+                          {
+                            breakpoint: 768,
+                            options: {
+                              legend: {
+                                position: "bottom",
+                              },
+                            },
+                          },
+                        ],
+                      }));
+
+                      onMounted(() => {
+                        setTimeout(() => {
+                          changeKey.value++;
+                        }, 500);
+                      });
+                      &lt;/script&gt;
+                    </code>
+                  </pre>
+                </NuxtScrollbar>
+              </div>
+            </transition>
+          </ClientOnly>
+        </template>
+      </rs-card>
+
+      <rs-card>
+        <template #header>
+          <h5>Radar Chart</h5>
+        </template>
+        <template #body>
+          <ClientOnly>
+            <VueApexCharts
+              :key="changeKey"
+              width="100%"
+              height="300"
               type="radar"
               :options="chartOptions"
               :series="series"
             ></VueApexCharts>
           </ClientOnly>
-          <div class="flex justify-end">
+          <div class="flex justify-end mt-4">
             <button
               class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-              @click="showCode7 ? (showCode7 = false) : (showCode7 = true)"
+              @click="toggleCode('radar')"
             >
-              Show Code
+              {{ showCode.radar ? "Hide Code" : "Show Code" }}
             </button>
           </div>
           <ClientOnly>
             <transition name="fade">
-              <div class="z-0" v-show="showCode7" v-highlight>
+              <div v-show="showCode.radar" class="relative" v-highlight>
+                <button
+                  @click="copyCode('codeRadar')"
+                  class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+                >
+                  Copy
+                </button>
+                <span
+                  v-if="tooltips['codeRadar']"
+                  class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+                >
+                  {{ tooltips["codeRadar"] }}
+                </span>
                 <NuxtScrollbar style="height: 400px">
-                  <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;ClientOnly&gt;
-                  &lt;VueApexCharts
-                    :key="changeKey"
-                    width="100%"
-                    height="300"
-                    type="radar"
-                    :options="chartOptions"
-                    :series="series"
-                  &gt;&lt;/VueApexCharts&gt;
-                &lt;/ClientOnly&gt;
-              &lt;/template&gt;
+                  <pre id="codeRadar" class="language-html shadow-none">
+                    <code>
+                      &lt;template&gt; 
+                        &lt;ClientOnly&gt;
+                          &lt;VueApexCharts
+                            :key="changeKey"
+                            width="100%"
+                            height="300"
+                            type="radar"
+                            :options="chartOptions"
+                            :series="series"
+                          &gt;&lt;/VueApexCharts&gt;
+                        &lt;/ClientOnly&gt;
+                      &lt;/template&gt;
 
-              &lt;script setup&gt;
-              
-              const changeKey = ref(0);
-              
-              const series = ref([
-                {
-                  name: "Series 1",
-                  data: [30, 40, 35, 50, 49, 60, 70, 91],
-                },
-                {
-                  name: "Series 2",
-                  data: [20, 10, 25, 40, 39, 50, 60, 71],
-                },
-                {
-                  name: "Series 3",
-                  data: [0, 10, 20, 25, 30, 35, 40, 45],
-                },
-              ]);
+                      &lt;script setup&gt;
+                      const changeKey = ref(0);
+                      
+                      const series = ref([
+                        {
+                          name: "Series 1",
+                          data: [30, 40, 35, 50, 49, 60, 70, 91],
+                        },
+                        {
+                          name: "Series 2",
+                          data: [20, 10, 25, 40, 39, 50, 60, 71],
+                        },
+                        {
+                          name: "Series 3",
+                          data: [0, 10, 20, 25, 30, 35, 40, 45],
+                        },
+                      ]);
 
-              const chartOptions = computed(() => ({
-                chart: {
-                  id: "apexChart",
-                },
-                legend: {
-                  position: "top",
-                },
-                theme: {
-                  mode: "light",
-                  palette: "palette1",
-                },
-                xaxis: {
-                  categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
-                },
-                responsive: [
-                  {
-                    breakpoint: 768,
-                    options: {
-                      legend: {
-                        position: "bottom",
-                      },
-                    },
-                  },
-                ],
-              }));
+                      const chartOptions = computed(() => ({
+                        chart: {
+                          id: "apexChart",
+                        },
+                        legend: {
+                          position: "top",
+                        },
+                        theme: {
+                          mode: "light",
+                          palette: "palette1",
+                        },
+                        xaxis: {
+                          categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
+                        },
+                        responsive: [
+                          {
+                            breakpoint: 768,
+                            options: {
+                              legend: {
+                                position: "bottom",
+                              },
+                            },
+                          },
+                        ],
+                      }));
 
-              onMounted(() => {
-                setTimeout(() => {
-                  changeKey.value++;
-                }, 500);
-              });
-              &lt;/script&gt;
-            </code>
-          </pre>
+                      onMounted(() => {
+                        setTimeout(() => {
+                          changeKey.value++;
+                        }, 500);
+                      });
+                      &lt;/script&gt;
+                    </code>
+                  </pre>
                 </NuxtScrollbar>
               </div>
             </transition>
@@ -838,94 +931,105 @@ onMounted(() => {
               :series="series4"
             ></VueApexCharts>
           </ClientOnly>
-          <div class="flex justify-end">
+          <div class="flex justify-end mt-4">
             <button
               class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-              @click="showCode8 ? (showCode8 = false) : (showCode8 = true)"
+              @click="toggleCode('radialBar')"
             >
-              Show Code
+              {{ showCode.radialBar ? "Hide Code" : "Show Code" }}
             </button>
           </div>
           <ClientOnly>
             <transition name="fade">
-              <div class="z-0" v-show="showCode8" v-highlight>
+              <div v-show="showCode.radialBar" class="relative" v-highlight>
+                <button
+                  @click="copyCode('codeRadialBar')"
+                  class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+                >
+                  Copy
+                </button>
+                <span
+                  v-if="tooltips['codeRadialBar']"
+                  class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+                >
+                  {{ tooltips["codeRadialBar"] }}
+                </span>
                 <NuxtScrollbar style="height: 400px">
-                  <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;ClientOnly&gt;
-                  &lt;VueApexCharts
-                    :key="changeKey"
-                    width="100%"
-                    height="300"
-                    type="radialBar"
-                    :options="chartOptions"
-                    :series="series"
-                  &gt;&lt;/VueApexCharts&gt;
-                &lt;/ClientOnly&gt;
-              &lt;/template&gt;
+                  <pre id="codeRadialBar" class="language-html shadow-none">
+                    <code>
+                      &lt;template&gt; 
+                        &lt;ClientOnly&gt;
+                          &lt;VueApexCharts
+                            :key="changeKey"
+                            width="100%"
+                            height="330"
+                            type="radialBar"
+                            :options="chartOptionsRadial"
+                            :series="series4"
+                          &gt;&lt;/VueApexCharts&gt;
+                        &lt;/ClientOnly&gt;
+                      &lt;/template&gt;
 
-              &lt;script setup&gt;
-              
-              const changeKey = ref(0);
-              
-              const series = ref([77]);
+                      &lt;script setup&gt;
+                      const changeKey = ref(0);
+                      
+                      const series4 = ref([77]);
 
-              const chartOptions = computed(() => ({
-                colors: ["#20E647"],
-                plotOptions: {
-                  radialBar: {
-                    hollow: {
-                      margin: 0,
-                      size: "70%",
-                      background: "#293450",
-                    },
-                    track: {
-                      dropShadow: {
-                        enabled: true,
-                        top: 2,
-                        left: 0,
-                        blur: 4,
-                        opacity: 0.15,
-                      },
-                    },
-                    dataLabels: {
-                      name: {
-                        offsetY: -10,
-                        color: "#fff",
-                        fontSize: "13px",
-                      },
-                      value: {
-                        color: "#fff",
-                        fontSize: "30px",
-                        show: true,
-                      },
-                    },
-                  },
-                },
-                fill: {
-                  type: "gradient",
-                  gradient: {
-                    shade: "dark",
-                    type: "vertical",
-                    gradientToColors: ["#87D4F9"],
-                    stops: [0, 100],
-                  },
-                },
-                stroke: {
-                  lineCap: "round",
-                },
-                labels: ["Goals"],
-              }));
+                      const chartOptionsRadial = computed(() => ({
+                        colors: ["#20E647"],
+                        plotOptions: {
+                          radialBar: {
+                            hollow: {
+                              margin: 0,
+                              size: "70%",
+                              background: "#293450",
+                            },
+                            track: {
+                              dropShadow: {
+                                enabled: true,
+                                top: 2,
+                                left: 0,
+                                blur: 4,
+                                opacity: 0.15,
+                              },
+                            },
+                            dataLabels: {
+                              name: {
+                                offsetY: -10,
+                                color: "#fff",
+                                fontSize: "13px",
+                              },
+                              value: {
+                                color: "#fff",
+                                fontSize: "30px",
+                                show: true,
+                              },
+                            },
+                          },
+                        },
+                        fill: {
+                          type: "gradient",
+                          gradient: {
+                            shade: "dark",
+                            type: "vertical",
+                            gradientToColors: ["#87D4F9"],
+                            stops: [0, 100],
+                          },
+                        },
+                        stroke: {
+                          lineCap: "round",
+                        },
+                        labels: ["Goals"],
+                      }));
 
-              onMounted(() => {
-                setTimeout(() => {
-                  changeKey.value++;
-                }, 500);
-              });
-              &lt;/script&gt;
-            </code>
-          </pre>
+                      onMounted(() => {
+                        setTimeout(() => {
+                          changeKey.value++;
+                        }, 500);
+                      });
+                      &lt;/script&gt;
+                    </code>
+                  </pre>
                 </NuxtScrollbar>
               </div>
             </transition>
@@ -935,3 +1039,15 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

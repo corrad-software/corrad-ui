@@ -3,11 +3,36 @@ definePageMeta({
   title: "Dropdown",
 });
 
-const showCode1 = ref(false);
-const showCode2 = ref(false);
-const showCode3 = ref(false);
-const showCode4 = ref(false);
-const showCode5 = ref(false);
+const showCode = reactive({});
+const tooltips = reactive({});
+
+const toggleCode = (section) => {
+  showCode[section] = !showCode[section];
+};
+
+const copyCode = (codeId) => {
+  const codeElement = document.getElementById(codeId);
+  if (codeElement) {
+    navigator.clipboard
+      .writeText(codeElement.textContent)
+      .then(() => {
+        console.log("Code copied to clipboard");
+        showTooltip(codeId, "Code copied!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy code: ", err);
+        showTooltip(codeId, "Failed to copy code");
+      });
+  }
+};
+
+const showTooltip = (codeId, message) => {
+  tooltips[codeId] = message;
+  setTimeout(() => {
+    tooltips[codeId] = null;
+  }, 2000);
+};
+
 const dropdownItems = [
   {
     label: "Item 1 - Application",
@@ -45,36 +70,48 @@ const dropdownItems = [
           </rs-dropdown>
         </div>
 
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="showCode1 ? (showCode1 = false) : (showCode1 = true)"
+            @click="toggleCode('default')"
           >
-            Show Code
+            {{ showCode.default ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div class="z-0" v-show="showCode1" v-highlight>
+            <div v-show="showCode.default" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeDefault')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeDefault']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeDefault"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-dropdown title="Default"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Default"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item divider&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-              &lt;/template&gt;
+                <pre id="codeDefault" class="language-html shadow-none">
+                  <code>
+                    &lt;template&gt; 
+                      &lt;rs-dropdown title="Default"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Default"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item divider&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                    &lt;/template&gt;
 
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
+                    &lt;script setup&gt;&lt;/script&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -118,51 +155,63 @@ const dropdownItems = [
             <rs-dropdown-item> Option 3 </rs-dropdown-item>
           </rs-dropdown>
         </div>
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="showCode2 ? (showCode2 = false) : (showCode2 = true)"
+            @click="toggleCode('variant')"
           >
-            Show Code
+            {{ showCode.variant ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div class="z-0" v-show="showCode2" v-highlight>
+            <div v-show="showCode.variant" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeVariant')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeVariant']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeVariant"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-dropdown title="Primary" variant="primary"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Info" variant="info"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;                
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Success" variant="success"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Warning" variant="warning"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Danger" variant="danger"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-              &lt;/template&gt;
+                <pre id="codeVariant" class="language-html shadow-none">
+                  <code>
+                    &lt;template&gt; 
+                      &lt;rs-dropdown title="Primary" variant="primary"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Info" variant="info"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;                
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Success" variant="success"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Warning" variant="warning"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Danger" variant="danger"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                    &lt;/template&gt;
 
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
+                    &lt;script setup&gt;&lt;/script&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -287,106 +336,118 @@ const dropdownItems = [
             </rs-dropdown>
           </div>
         </div>
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="showCode3 ? (showCode3 = false) : (showCode3 = true)"
+            @click="toggleCode('variantType')"
           >
-            Show Code
+            {{ showCode.variantType ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div class="z-0" v-show="showCode3" v-highlight>
+            <div v-show="showCode.variantType" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeVariantType')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeVariantType']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeVariantType"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;!-- Fill Dropdown --&gt;
-                &lt;rs-dropdown title="Primary" variant="primary"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Info" variant="info"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Success" variant="success"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Warning" variant="warning"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Danger" variant="danger"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
+                <pre id="codeVariantType" class="language-html shadow-none">
+                  <code>
+                    &lt;template&gt; 
+                      &lt;!-- Fill Dropdown --&gt;
+                      &lt;rs-dropdown title="Primary" variant="primary"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Info" variant="info"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Success" variant="success"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Warning" variant="warning"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Danger" variant="danger"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
 
-                &lt;!-- Outline Dropdown --&gt;
-                &lt;rs-dropdown title="Primary" variant="primary-outline"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Info" variant="info-outline"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Success" variant="success-outline"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Warning" variant="warning-outline"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Danger" variant="danger-outline"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
+                      &lt;!-- Outline Dropdown --&gt;
+                      &lt;rs-dropdown title="Primary" variant="primary-outline"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Info" variant="info-outline"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Success" variant="success-outline"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Warning" variant="warning-outline"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Danger" variant="danger-outline"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
 
-                &lt;!-- Text Dropdown --&gt;
-                &lt;rs-dropdown title="Primary" variant="primary-text"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Info" variant="info-text"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Success" variant="success-text"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Warning" variant="warning-text"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Danger" variant="danger-text"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-              &lt;/template&gt;
+                      &lt;!-- Text Dropdown --&gt;
+                      &lt;rs-dropdown title="Primary" variant="primary-text"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Info" variant="info-text"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Success" variant="success-text"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Warning" variant="warning-text"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Danger" variant="danger-text"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                    &lt;/template&gt;
 
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
+                    &lt;script setup&gt;&lt;/script&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -424,46 +485,59 @@ const dropdownItems = [
             <rs-dropdown-item> Option 3 </rs-dropdown-item>
           </rs-dropdown>
         </div>
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="showCode4 ? (showCode4 = false) : (showCode4 = true)"
+            @click="toggleCode('position')"
           >
-            Show Code
+            {{ showCode.position ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div class="z-0" v-show="showCode4" v-highlight>
+            <div v-show="showCode.position" class="relative" v-highlight>
+              <button
+                @click="copyCode('codePosition')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codePosition']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codePosition"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-dropdown title="Bottom"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Top" position="top"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Left" position="left"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Right" position="right"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-              &lt;/template&gt;
+                <pre id="codePosition" class="language-html shadow-none">
+                  <code>
+                    &lt;template&gt; 
+                      &lt;rs-dropdown title="Bottom"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Top" position="top"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;gt;
+                      &lt;rs-dropdown title="Left" position="left"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Right" position="right"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                    &lt;/template&gt;
 
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
+                    &lt;script setup&gt;&lt;/script&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -493,41 +567,53 @@ const dropdownItems = [
             <rs-dropdown-item> Option 3 </rs-dropdown-item>
           </rs-dropdown>
         </div>
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
-            @click="showCode5 ? (showCode5 = false) : (showCode5 = true)"
+            @click="toggleCode('size')"
           >
-            Show Code
+            {{ showCode.size ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div class="z-0" v-show="showCode5" v-highlight>
+            <div v-show="showCode.size" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeSize')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeSize']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeSize"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-dropdown title="Small" size="sm"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Medium"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-                &lt;rs-dropdown title="Large" size="lg"&gt;
-                  &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
-                  &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
-                &lt;/rs-dropdown&gt;
-              &lt;/template&gt;
+                <pre id="codeSize" class="language-html shadow-none">
+                  <code>
+                    &lt;template&gt; 
+                      &lt;rs-dropdown title="Small" size="sm"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Medium"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                      &lt;rs-dropdown title="Large" size="lg"&gt;
+                        &lt;rs-dropdown-item&gt; Option 1 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 2 &lt;/rs-dropdown-item&gt;
+                        &lt;rs-dropdown-item&gt; Option 3 &lt;/rs-dropdown-item&gt;
+                      &lt;/rs-dropdown&gt;
+                    &lt;/template&gt;
 
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
+                    &lt;script setup&gt;&lt;/script&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -536,3 +622,15 @@ const dropdownItems = [
     </rs-card>
   </div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

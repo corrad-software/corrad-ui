@@ -9,8 +9,35 @@ definePageMeta({
 
 const calendarOptions = ref(null);
 
-const showCode1 = ref(false);
-const changeKey = ref(0);
+const showCode = reactive({});
+const tooltips = reactive({});
+
+const toggleCode = (section) => {
+  showCode[section] = !showCode[section];
+};
+
+const copyCode = (codeId) => {
+  const codeElement = document.getElementById(codeId);
+  if (codeElement) {
+    navigator.clipboard
+      .writeText(codeElement.textContent)
+      .then(() => {
+        console.log("Code copied to clipboard");
+        showTooltip(codeId, "Code copied!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy code: ", err);
+        showTooltip(codeId, "Failed to copy code");
+      });
+  }
+};
+
+const showTooltip = (codeId, message) => {
+  tooltips[codeId] = message;
+  setTimeout(() => {
+    tooltips[codeId] = null;
+  }, 2000);
+};
 
 const handleDateClick = (arg) => {
   // alert("date click! " + arg.dateStr);
@@ -58,6 +85,8 @@ calendarOptions.value = {
   ],
 };
 
+const changeKey = ref(0);
+
 onMounted(() => {
   setTimeout(() => {
     changeKey.value++;
@@ -77,7 +106,7 @@ onMounted(() => {
       </template>
       <template #body>
         <p class="mb-4">
-          This template use
+          This template uses
           <a
             href="https://fullcalendar.io/"
             target="_blank"
@@ -85,7 +114,7 @@ onMounted(() => {
             >FullCalendar</a
           >
           which is a Vue component that allows you to create a calendar.
-          Fullcalendar is a JavaScript library that provides a simple API for
+          FullCalendar is a JavaScript library that provides a simple API for
           easily creating a calendar. Besides, it is a great way to display
           events on a page.
         </p>
@@ -101,61 +130,75 @@ onMounted(() => {
         <ClientOnly>
           <FullCalendar :key="changeKey" :options="calendarOptions" />
         </ClientOnly>
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-4">
           <button
-            class="text-sm border border-slate-200 py-1 px-3 rounded-lg my-2"
-            @click="showCode1 ? (showCode1 = false) : (showCode1 = true)"
+            class="text-sm border border-slate-200 py-1 px-3 rounded-lg"
+            @click="toggleCode('defaultCalendar')"
           >
-            Show Code
+            {{ showCode.defaultCalendar ? "Hide Code" : "Show Code" }}
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
-            <div v-show="showCode1" v-highlight>
+            <div v-show="showCode.defaultCalendar" class="relative" v-highlight>
+              <button
+                @click="copyCode('codeDefaultCalendar')"
+                class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-400 py-1 px-3 rounded z-10"
+              >
+                Copy
+              </button>
+              <span
+                v-if="tooltips['codeDefaultCalendar']"
+                class="absolute top-4 right-20 bg-black text-white text-xs rounded py-1 px-2 z-20"
+              >
+                {{ tooltips["codeDefaultCalendar"] }}
+              </span>
               <NuxtScrollbar style="height: 400px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;ClientOnly&gt;
-                  &lt;FullCalendar :key="changeKey" :options="calendarOptions" /&gt;
-                &lt;/ClientOnly&gt;
-              &lt;/template&gt;
+                <pre id="codeDefaultCalendar" class="language-html shadow-none">
+                  <code>
+                    &lt;template&gt; 
+                      &lt;ClientOnly&gt;
+                        &lt;FullCalendar :key="changeKey" :options="calendarOptions" /&gt;
+                      &lt;/ClientOnly&gt;
+                    &lt;/template&gt;
 
-              &lt;script setup&gt; 
-              const { $FullCalendar } = useNuxtApp();
-              const FullCalendar = $FullCalendar;
+                    &lt;script setup&gt; 
+                    const { $FullCalendar } = useNuxtApp();
+                    const FullCalendar = $FullCalendar;
 
-              const calendarOptions = ref(null);
+                    const calendarOptions = ref(null);
 
-              calendarOptions.value = {
-                ...FullCalendar?.options,
-                initialView: "dayGridMonth",
-                headerToolbar: {
-                  left: "prev,next title",
-                  right: "dayGridMonth,timeGridWeek,listWeek",
-                },
-                dragScroll: true,
-                dayMaxEvents: 2,
-                navLinks: true,
-                events: [
-                  { title: "event 1", start: "2022-07-05", end: "2022-07-08" },
-                  { title: "event 2", start: "2022-07-05", end: "2022-07-08" },
-                  { title: "event 3", start: "2022-07-05", end: "2022-07-08" },
-                  { title: "event 3", start: "2022-07-05", end: "2022-07-08" },
-                  { title: "event 3", start: "2022-07-05", end: "2022-07-08" },
-                  { title: "event 3", start: "2022-07-05", end: "2022-07-08" },
-                  { title: "event 4", date: "2022-07-22" },
-                ],
-              };
+                    calendarOptions.value = {
+                      ...FullCalendar?.options,
+                      initialView: "dayGridMonth",
+                      headerToolbar: {
+                        left: "prev,next title",
+                        right: "dayGridMonth,timeGridWeek,listWeek",
+                      },
+                      dragScroll: true,
+                      dayMaxEvents: 2,
+                      navLinks: true,
+                      events: [
+                        { title: "event 1", start: "2022-07-05", end: "2022-07-08" },
+                        { title: "event 2", start: "2022-07-05", end: "2022-07-08" },
+                        { title: "event 3", start: "2022-07-05", end: "2022-07-08" },
+                        { title: "event 3", start: "2022-07-05", end: "2022-07-08" },
+                        { title: "event 3", start: "2022-07-05", end: "2022-07-08" },
+                        { title: "event 3", start: "2022-07-05", end: "2022-07-08" },
+                        { title: "event 4", date: "2022-07-22" },
+                      ],
+                    };
 
-              onMounted(() => {
-                setTimeout(() => {
-                  changeKey.value++;
-                }, 500);
-              });
-              &lt;/script&gt;
-            </code>
-          </pre>
+                    const changeKey = ref(0);
+
+                    onMounted(() => {
+                      setTimeout(() => {
+                        changeKey.value++;
+                      }, 500);
+                    });
+                    &lt;/script&gt;
+                  </code>
+                </pre>
               </NuxtScrollbar>
             </div>
           </transition>
@@ -164,3 +207,15 @@ onMounted(() => {
     </rs-card>
   </div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
