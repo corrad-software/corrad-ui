@@ -245,6 +245,10 @@ export default [
                 title: "Vue Quill",
                 path: "/form/element/vue-quill",
               },
+              {
+                title: "Multi-Select",
+                path: "/form/element/multiselect",
+              },
             ],
           },
           {
